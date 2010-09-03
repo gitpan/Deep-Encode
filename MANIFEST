@@ -1,0 +1,9 @@
+Changes
+Encode.xs
+Makefile.PL
+MANIFEST
+ppport.h
+README
+t/Deep-Encode.t
+lib/Deep/Encode.pm
+META.yml                                 Module meta-data (added by MakeMaker)

@@ -1,0 +1,13 @@
+Revision history for Perl extension Deep::Encode.
+
+0.01  Thu Sep  2 16:17:05 2010
+	- original version; created by h2xs 1.23 with options
+		-AfO -n Deep::Encode
+0.02  Thu Sep  3 10:17:15 2010
+	- Added subs:
+	deep_utf8_decode
+	deep_utf8_encode
+	and
+	deep_str_process (experimental)
+
+
