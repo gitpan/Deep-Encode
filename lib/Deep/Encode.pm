@@ -17,14 +17,21 @@ our @ISA = qw(Exporter);
 # If you do not need this, moving things directly into @EXPORT or @EXPORT_OK
 # will save memory.
 our %EXPORT_TAGS = ( 
-	all => [ qw( deep_utf8_decode deep_utf8_encode deep_from_to) ], 
+	all => [ qw( 
+		deep_utf8_decode
+	   	deep_utf8_encode
+	   	deep_from_to
+	   	deep_from_to_
+		deep_encode
+		deep_decode
+		) ], 
 	expr=> [ qw( deep_str_process) ] );
 
 our @EXPORT_OK = ( map @$_, map  $EXPORT_TAGS{$_} , 'all', 'expr' );
 
 our @EXPORT =  ( map @$_, map  $EXPORT_TAGS{$_} , 'all');
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 require XSLoader;
 XSLoader::load('Deep::Encode', $VERSION);
