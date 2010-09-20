@@ -29,7 +29,7 @@ typedef struct pp_args{
     #define ARRAY_SIZE(x) (sizeof(x)/sizeof(x[0]))
 #endif
 
-void from_to_cb02( pp_func pf, SV * data){
+void from_to_cb( pp_func pf, SV * data){
     int argc;
     int ret_list_size;
     SV *decoded_sv;
@@ -100,7 +100,7 @@ void from_to_cb02( pp_func pf, SV * data){
     FREETMPS;
     LEAVE;
 };
-void from_to_cb( pp_func pf, SV * data){
+void from_to_cb_00( pp_func pf, SV * data){
     int argc;
     int ret_list_size;
     SV *decoded_sv;
@@ -387,26 +387,26 @@ deep_utf8_encode( SV *data )
 	deep_walk_imp( data, & a_args );        
 
 void
+deep_from_to_00( SV *data, SV *from, SV* to )
+    PROTOTYPE: $$$
+    PPCODE:
+	struct pp_args a_args;
+	a_args.noskip  = 0;
+	a_args.type = DEEP_FUNCTION;
+	a_args.callback = from_to_cb_00;
+	a_args.argv[0] = find_encoding( &a_args, from );
+	a_args.argv[1] = find_encoding( &a_args, to );
+	deep_walk_imp( data, & a_args );        
+
+void
 deep_from_to( SV *data, SV *from, SV* to )
     PROTOTYPE: $$$
     PPCODE:
 	struct pp_args a_args;
 	a_args.noskip  = 0;
 	a_args.type = DEEP_FUNCTION;
-	a_args.callback = from_to_cb;
-	a_args.argv[0] = find_encoding( &a_args, from );
-	a_args.argv[1] = find_encoding( &a_args, to );
-	deep_walk_imp( data, & a_args );        
-
-void
-deep_from_to_2( SV *data, SV *from, SV* to )
-    PROTOTYPE: $$$
-    PPCODE:
-	struct pp_args a_args;
-	a_args.noskip  = 0;
-	a_args.type = DEEP_FUNCTION;
 	a_args.fastinit = 0;
-	a_args.callback = from_to_cb02;
+	a_args.callback = from_to_cb;
 	a_args.argv[0] = find_encoding( &a_args, from );
 	a_args.argv[1] = find_encoding( &a_args, to );
 	deep_walk_imp( data, & a_args );        

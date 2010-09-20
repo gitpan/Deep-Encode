@@ -24,3 +24,5 @@ Revision history for Perl extension Deep::Encode.
     Added documentation for deep_encode deep_decode
 
 
+0.05  Mon Sep 20 14:54:13 MSK 2010
+    Typos in code
