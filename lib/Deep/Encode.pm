@@ -21,17 +21,16 @@ our %EXPORT_TAGS = (
 		deep_utf8_decode
 	   	deep_utf8_encode
 	   	deep_from_to
-	   	deep_from_to_
 		deep_encode
 		deep_decode
 		) ], 
-	expr=> [ qw( deep_str_process) ] );
+	 );
 
-our @EXPORT_OK = ( map @$_, map  $EXPORT_TAGS{$_} , 'all', 'expr' );
+our @EXPORT_OK = ( map @$_, map  $EXPORT_TAGS{$_} , 'all' );
 
 our @EXPORT =  ( map @$_, map  $EXPORT_TAGS{$_} , 'all');
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 require XSLoader;
 XSLoader::load('Deep::Encode', $VERSION);
@@ -41,21 +40,21 @@ __END__
 
 =head1 NAME
 
-Deep::Encode - Perl extension for  coding and decoding strings in arrays and hashes ( reqursive )
+Deep::Encode - Perl extension for  coding and decoding strings in arrays and hashes ( recursive )
 
 =head1 SYNOPSIS
 
   use Deep::Encode;
-  use Encode; # optional
 
   my $s = [ 1, 2, "string in cp1251 encoding" ];
 
-  deep_from_to( $s, "cp1251", "utf8" ); # convert $s to [ [ 1, 2, "string in utf8 encoding" ];
-  # Using Encode::from_to( $str,  , ,)
+  deep_from_to( $s, "cp1251", "utf8" ); # convert $s to [ [ 1, 2, "string in utf8 encoding" ]; using Encode::from_to
 
   deep_utf8_encode( $s ) ; # call utf8::encode on every string in $s
-
   deep_utf8_decode( $s ) ; # call utf8::decode on every string in $s
+
+  deep_encode( $s, $encoding );  # call Encode::encode for every string scalar in
+  deep_decode( $s, $encoding );  # call Encode::decode for every string scalar in 
 
 =head1 DESCRIPTION
 
@@ -67,10 +66,20 @@ Deep::Encode - Perl extension for  coding and decoding strings in arrays and has
   deep_utf8_decode( $s )
   deep_utf8_encode( $s )
 
+  deep_encode( $s, $encoding );  # call Encode::encode on every string scalar in
+  deep_decode( $s, $encoding );  # call Encode::decode on every string scalar in 
+
+=head1 FEATURES
+  This module does not handle hash keys, but values it does.
+
+  $encoding may be as string like "utf8", "cp1251" or object returned from &Encode::find_encoding ( It will be little faster than string )
+
+=head1 BUGS && TODO
+  For now this module can't handle self referrenced structures. 
 
 =head1 SEE ALSO
 
-Encode, utf8
+L<Encode>, L<utf8>, L<Data::Recursive::Encode> (pure perl implementation)
 
 =head1 AUTHOR
 

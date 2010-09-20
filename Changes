@@ -11,3 +11,16 @@ Revision history for Perl extension Deep::Encode.
 	deep_str_process (experimental)
 
 
+0.03  Thu Sep  8 18:15 2010
+	- Added subs:
+	deep_fromto
+	deep_encode
+	deep_decode
+	- Apply some optimizations and lot of profiling
+
+0.04  Mon Sep 20 13:00:13 MSK 2010
+    Added fastcall for deep_* so all functions performs faster
+    Added some tests
+    Added documentation for deep_encode deep_decode
+
+

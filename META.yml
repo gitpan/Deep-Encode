@@ -1,7 +1,7 @@
 --- #YAML:1.0
 name:               Deep-Encode
-version:            0.03
-abstract:           Perl extension for  coding and decoding strings in arrays and hashes ( reqursive )
+version:            0.04
+abstract:           Perl extension for  coding and decoding strings in arrays and hashes ( recursive )
 author:
     - A. G. Grishaev <grian@cpan.org>
 license:            unknown
