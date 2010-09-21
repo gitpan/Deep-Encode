@@ -1,8 +1,10 @@
-use 5.008008;
 use ExtUtils::MakeMaker;
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
-exit 0 if ( $] <= 5.008008 );
+unless( $] >= 5.008000 ){
+	print STDERR "perl 5.8.0 required. would not build\n";	
+	exit 0;
+}
 WriteMakefile(
     NAME              => 'Deep::Encode',
     VERSION_FROM      => 'lib/Deep/Encode.pm', # finds $VERSION

@@ -30,7 +30,6 @@ typedef struct pp_args{
 #endif
 
 void from_to_cb( pp_func pf, SV * data){
-    int argc;
     int ret_list_size;
     SV *decoded_sv;
     dSP;
@@ -101,7 +100,6 @@ void from_to_cb( pp_func pf, SV * data){
     LEAVE;
 };
 void from_to_cb_00( pp_func pf, SV * data){
-    int argc;
     int ret_list_size;
     SV *decoded_sv;
     dSP;
@@ -162,12 +160,12 @@ SV *find_encoding(pp_func pfunc, SV* encoding )
 	    croak( "Big trouble with Encode::find_encoding");
 	enc_obj = POPs;	    
 
-	if (!SvOK(enc_obj))
+	if (!SvOK(enc_obj)) {
 	    if ( SvPOK(encoding) )
 		croak("Unknown encoding '%.*s'", SvCUR(encoding), SvPV_nolen(encoding));
 	    else 
 		croak("Unknown encoding ??? (is not string)");
-
+	};
 	PUTBACK;
     };
     if (! pfunc->noskip ){
@@ -219,13 +217,14 @@ deep_walk_imp( SV * data, pp_func pf){
 	SV * rv = (SV*) SvRV(data);
 	if ( SvTYPE(rv) == SVt_PVAV ){
 	    int alen;
-	    int i;
 	    SV **aitem;
+	    int i;
+
 	    alen = av_len( (AV*)rv );
 	    for ( i=0; i<= alen ;++i ){
-		SV** aitem = av_fetch( (AV *) rv , i, 0);
+		aitem = av_fetch( (AV *) rv , i, 0);
 		if (aitem){
-		    deep_walk_imp( *aitem, pf );
+			deep_walk_imp( *aitem, pf );
 		}
 	    }
 	}
@@ -237,7 +236,7 @@ deep_walk_imp( SV * data, pp_func pf){
 	    char * key_str;
 	    hv = (HV *) rv;
 	    hv_iterinit(hv);
-	    while( he = hv_iternext(hv)){
+	    while(  (he = hv_iternext(hv)) ){
 		key_str = HePV( he, key_len);
 		value = HeVAL( he );
 		deep_walk_imp( value, pf );
@@ -347,7 +346,7 @@ deep_walk_imp( SV * data, pp_func pf){
 		    break;
 		case 1: // print str
 		default:
-		    fprintf( stderr, "'%.*s'\n", plen, pstr);
+		    fprintf( stderr, "'%.*s'\n", (int) plen, pstr);
 		    break;
 		}
 	    }
@@ -411,13 +410,44 @@ deep_from_to( SV *data, SV *from, SV* to )
 	a_args.argv[1] = find_encoding( &a_args, to );
 	deep_walk_imp( data, & a_args );        
 
+void
+deep_encode_00( SV *data, SV* encoding )
+    PROTOTYPE: $$
+    PPCODE:
+	struct pp_args a_args;
+	a_args.type = DEEP_METHOD_TEMP;
+	a_args.fastinit = -1;
+	a_args.method  = "encode";
+	a_args.noskip  = 0;
+	a_args.str_pos = 1;
+	a_args.argc    = 2;
+	a_args.argv[0] = find_encoding( & a_args, encoding );
+	a_args.argv[1] = 0;
+	deep_walk_imp( data, & a_args );        
+
+
+void
+deep_decode_00( SV *data, SV* encoding )
+    PROTOTYPE: $$
+    PPCODE:
+	struct pp_args a_args;
+	a_args.type = DEEP_METHOD_TEMP;
+	a_args.fastinit = -1;
+	a_args.method   = "decode";
+	a_args.noskip   = 0;
+	a_args.str_pos  = 1;
+	a_args.argc     = 2;
+	a_args.argv[0] = find_encoding( & a_args, encoding );
+	a_args.argv[1] = 0;
+	deep_walk_imp( data, & a_args );        
+
+
 
 void
 deep_encode( SV *data, SV* encoding )
     PROTOTYPE: $$
     PPCODE:
 	struct pp_args a_args;
-	int ret_list;
 	a_args.type = DEEP_METHOD_TEMP;
 	a_args.method  = "encode";
 	a_args.noskip  = 0;
@@ -434,7 +464,6 @@ deep_decode( SV *data, SV* encoding )
     PROTOTYPE: $$
     PPCODE:
 	struct pp_args a_args;
-	int ret_list;
 	a_args.type = DEEP_METHOD_TEMP;
 	a_args.method   = "decode";
 	a_args.noskip   = 0;
