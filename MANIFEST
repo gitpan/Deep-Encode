@@ -8,4 +8,5 @@ lib/Deep/Encode.pm
 t/Deep-Encode-00.t
 t/Deep-Encode-01.t
 t/Deep-Encode-02.t
+t/Deep-Encode-03.t
 META.yml                                 Module meta-data (added by MakeMaker)

@@ -11,6 +11,7 @@
 struct pp_args;
 typedef void (*p_callback)(struct pp_args*, SV *);
 
+
 typedef struct pp_args{
     char  type;
     char  fastinit;
@@ -18,6 +19,7 @@ typedef struct pp_args{
     int   noskip;
     int   argc;
     int   str_pos;
+    int   counter;
     char *method;
     CV   *meth1;
     CV   *meth2;
@@ -29,6 +31,12 @@ typedef struct pp_args{
     #define ARRAY_SIZE(x) (sizeof(x)/sizeof(x[0]))
 #endif
 
+void utf8_off_cb( pp_func pf, SV * data){
+    if (SvUTF8(data)){
+	SvUTF8_off(data);
+	++(pf->counter);
+    };
+}
 void from_to_cb( pp_func pf, SV * data){
     int ret_list_size;
     SV *decoded_sv;
@@ -474,4 +482,15 @@ deep_decode( SV *data, SV* encoding )
 	a_args.argv[1] = 0;
 	deep_walk_imp( data, & a_args );        
 
+void
+deep_utf8_off( SV *data)
+    PROTOTYPE: $
+    PPCODE:
+	struct pp_args a_args;
+        a_args.noskip  = 1;
+        a_args.type = DEEP_FUNCTION;
+        a_args.callback = utf8_off_cb;
+	a_args.counter = 0;
+        deep_walk_imp( data, & a_args );
+	mXPUSHi( a_args.counter );
 

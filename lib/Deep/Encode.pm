@@ -18,6 +18,7 @@ our @ISA = qw(Exporter);
 # will save memory.
 our %EXPORT_TAGS = ( 
 	all => [ qw( 
+		deep_utf8_off
 		deep_utf8_decode
 	   	deep_utf8_encode
 	   	deep_from_to
@@ -30,7 +31,7 @@ our @EXPORT_OK = ( map @$_, map  $EXPORT_TAGS{$_} , 'all' );
 
 our @EXPORT =  ( map @$_, map  $EXPORT_TAGS{$_} , 'all');
 
-our $VERSION = '0.06';
+our $VERSION = '0.07';
 
 require XSLoader;
 XSLoader::load('Deep::Encode', $VERSION);
@@ -68,6 +69,7 @@ Deep::Encode - Perl extension for  coding and decoding strings in arrays and has
 
   deep_encode( $s, $encoding );  # call Encode::encode on every string scalar in
   deep_decode( $s, $encoding );  # call Encode::decode on every string scalar in 
+  deep_utf8_off( $s ); # checkoff utf8 flag. return number applied items.
 
 =head1 FEATURES
   This module does not handle hash keys, but values it does.
