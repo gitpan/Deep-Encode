@@ -19,6 +19,8 @@ our @ISA = qw(Exporter);
 our %EXPORT_TAGS = ( 
 	all => [ qw( 
 		deep_utf8_off
+		deep_utf8_upgrade
+		deep_utf8_downgrade
 		deep_utf8_decode
 	   	deep_utf8_encode
 	   	deep_from_to
@@ -31,7 +33,7 @@ our @EXPORT_OK = ( map @$_, map  $EXPORT_TAGS{$_} , 'all' );
 
 our @EXPORT =  ( map @$_, map  $EXPORT_TAGS{$_} , 'all');
 
-our $VERSION = '0.07';
+our $VERSION = '0.08';
 
 require XSLoader;
 XSLoader::load('Deep::Encode', $VERSION);
@@ -41,7 +43,7 @@ __END__
 
 =head1 NAME
 
-Deep::Encode - Perl extension for  coding and decoding strings in arrays and hashes ( recursive )
+Deep::Encode - Bulk encoding and decoding strings in Perl data
 
 =head1 SYNOPSIS
 
@@ -59,7 +61,7 @@ Deep::Encode - Perl extension for  coding and decoding strings in arrays and has
 
 =head1 DESCRIPTION
 
-	This module allow apply Encode::from_to, utf8::decode, utf8::encode function on every scalar in array or hash recursively
+	This module allow apply Encode::from_to, utf8::decode, utf8::encode and ...  on every string scalar in array or hash recursively
 
 =head2 EXPORT
 
@@ -69,7 +71,9 @@ Deep::Encode - Perl extension for  coding and decoding strings in arrays and has
 
   deep_encode( $s, $encoding );  # call Encode::encode on every string scalar in
   deep_decode( $s, $encoding );  # call Encode::decode on every string scalar in 
-  deep_utf8_off( $s ); # checkoff utf8 flag. return number applied items.
+  deep_utf8_off( $s ); # check off utf8 flag. return number applied items.
+  deep_utf8_upgrade( $s );   # Make same as Encode::upgrade for all strings in $s. return number applied items.
+  deep_utf8_downgrade( $s ); # Make same as Encode::downgrade for all strings in $s. return number applied items.
 
 =head1 FEATURES
   This module does not handle hash keys, but values it does.

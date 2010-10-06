@@ -12,6 +12,19 @@ struct pp_args;
 typedef void (*p_callback)(struct pp_args*, SV *);
 
 
+bool 
+_is_utf8( U8 * start, U8 *end ){
+    STRLEN ucnt;
+    ucnt = -1;
+    while( start <= end ){
+	if ( *start < 	128 ){
+	    if (ucnt == -1 )
+		continue;
+	}
+    }
+}
+
+
 typedef struct pp_args{
     char  type;
     char  fastinit;
@@ -31,6 +44,18 @@ typedef struct pp_args{
     #define ARRAY_SIZE(x) (sizeof(x)/sizeof(x[0]))
 #endif
 
+void utf8_upgrade_cb( pp_func pf, SV * data){
+    if (!SvUTF8(data)){
+	(void) sv_utf8_upgrade( data );
+	++(pf->counter);
+    };
+}
+void utf8_downgrade_cb( pp_func pf, SV * data){
+    if (SvUTF8(data)){
+	(void) sv_utf8_downgrade( data , 0);
+	++(pf->counter);
+    };
+}
 void utf8_off_cb( pp_func pf, SV * data){
     if (SvUTF8(data)){
 	SvUTF8_off(data);
@@ -494,3 +519,26 @@ deep_utf8_off( SV *data)
         deep_walk_imp( data, & a_args );
 	mXPUSHi( a_args.counter );
 
+void
+deep_utf8_downgrade( SV *data)
+    PROTOTYPE: $
+    PPCODE:
+	struct pp_args a_args;
+        a_args.noskip  = 1;
+        a_args.type = DEEP_FUNCTION;
+        a_args.callback = utf8_downgrade_cb;
+	a_args.counter = 0;
+        deep_walk_imp( data, & a_args );
+	mXPUSHi( a_args.counter );
+
+void
+deep_utf8_upgrade( SV *data)
+    PROTOTYPE: $
+    PPCODE:
+	struct pp_args a_args;
+        a_args.noskip  = 1;
+        a_args.type = DEEP_FUNCTION;
+        a_args.callback = utf8_upgrade_cb;
+	a_args.counter = 0;
+        deep_walk_imp( data, & a_args );
+	mXPUSHi( a_args.counter );
