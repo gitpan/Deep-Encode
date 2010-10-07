@@ -10,3 +10,4 @@ t/Deep-Encode-00.t
 t/Deep-Encode-01.t
 t/Deep-Encode-02.t
 t/Deep-Encode-03.t
+t/Deep-Encode-04.t

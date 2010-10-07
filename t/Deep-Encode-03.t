@@ -19,7 +19,7 @@ use strict;
 use warnings;
 use Test::More 'no_plan';                      # last test to print
 use ExtUtils::testlib;
-use Deep::Encode qw(deep_utf8_off deep_utf8_upgrade deep_utf8_downgrade);
+use Deep::Encode qw(deep_utf8_off deep_utf8_upgrade deep_utf8_downgrade deep_utf8_check);
 use Encode;
 
 my $s1 = chr(1);
@@ -98,5 +98,25 @@ ok( $y ne chr(256), "check on flag" );
 
 }};
 
+ok( deep_utf8_check( pack("C*", 0..127)), "deep_utf8_check");
+for ( 128 .. 255 ){
+    my $x = pack("C*", $_);
+    my $true = !deep_utf8_check( $x ) && ! deep_utf8_check(chr(127).$x) && ! deep_utf8_check($x . chr(127));
+    ok( $true , "! deep_utf8_check($_)");
+}
+my $true_ok = 1;
+my $message = '';
 
+for (128 .. 0xB7FF){
+    my $x = pack "U*", $_;
+    utf8::encode( $x );
+    chop( my $y = $x);
+
+    my $true  = deep_utf8_check( $x ) && !deep_utf8_check( substr($x, 1)) &&!deep_utf8_check($y);
+
+    $true_ok &&= $true;
+    $message = "at $_ " unless $true;
+    last unless $true;
+};
+ok( $true_ok , " deep_utf8_check(128..0xb7FF_) $message");
 

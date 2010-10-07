@@ -18,6 +18,7 @@ our @ISA = qw(Exporter);
 # will save memory.
 our %EXPORT_TAGS = ( 
 	all => [ qw( 
+		deep_utf8_check
 		deep_utf8_off
 		deep_utf8_upgrade
 		deep_utf8_downgrade
@@ -33,7 +34,7 @@ our @EXPORT_OK = ( map @$_, map  $EXPORT_TAGS{$_} , 'all' );
 
 our @EXPORT =  ( map @$_, map  $EXPORT_TAGS{$_} , 'all');
 
-our $VERSION = '0.08';
+our $VERSION = '0.10';
 
 require XSLoader;
 XSLoader::load('Deep::Encode', $VERSION);
@@ -59,6 +60,14 @@ Deep::Encode - Bulk encoding and decoding strings in Perl data
   deep_encode( $s, $encoding );  # call Encode::encode for every string scalar in
   deep_decode( $s, $encoding );  # call Encode::decode for every string scalar in 
 
+  if ( deep_utf8_check( $s ) ){
+      deep_utf8_decode( $s );
+  }
+  else {
+      croak( "Data not in utf8 encoding" );
+  }
+    
+
 =head1 DESCRIPTION
 
 	This module allow apply Encode::from_to, utf8::decode, utf8::encode and ...  on every string scalar in array or hash recursively
@@ -75,6 +84,8 @@ Deep::Encode - Bulk encoding and decoding strings in Perl data
   deep_utf8_upgrade( $s );   # Make same as Encode::upgrade for all strings in $s. return number applied items.
   deep_utf8_downgrade( $s ); # Make same as Encode::downgrade for all strings in $s. return number applied items.
 
+  deep_utf8_check( $s ); # return true if all string can be properly decode from utf8
+
 =head1 FEATURES
   This module does not handle hash keys, but values it does.
 
@@ -82,6 +93,7 @@ Deep::Encode - Bulk encoding and decoding strings in Perl data
 
 =head1 BUGS && TODO
   For now this module can't handle self referrenced structures. 
+  To Public Benchmark.
 
 =head1 SEE ALSO
 

@@ -8,20 +8,52 @@
 #define DEEP_CALL_INPLACE  2
 #define DEEP_PRINT_STRING  1 
 
+// Win32 compilers
+#ifdef WIN32
+    #define inline _inline
+#endif
+
+
 struct pp_args;
 typedef void (*p_callback)(struct pp_args*, SV *);
+static U8 m1[] ={ 0, ~31, ~15, ~7, ~3 };
+static U8 m2[] ={ 0, 0xff & ~63, 0xff& ~31, 0xff &~15, 0xff & ~7 };
 
 
 bool 
 _is_utf8( U8 * start, U8 *end ){
     STRLEN ucnt;
     ucnt = -1;
-    while( start <= end ){
+
+    START:
+    while( start < end ){
 	if ( *start < 	128 ){
-	    if (ucnt == -1 )
-		continue;
+	    ++start;
 	}
+	else 
+	    goto ENC;
     }
+    return 1;
+
+    ENC:
+    ucnt = 0; 
+    U8 first = *start;
+    start++;
+    while( start < end && (*start & 0xC0) == 0x80 ) ucnt++, start++;
+    
+    if ( ucnt == 0 || ucnt > 4 ){
+// 	fprintf( stderr, "z1=%d %x\n", ucnt, first );
+	return 0 ;
+    }
+    if ( (first & m1[ucnt]) != m2[ucnt]){
+// 	fprintf( stderr, "z2=%d %x\n", ucnt, first);
+	return 0;
+    }
+    goto START;
+}
+
+inline bool is_utf8(char *z, STRLEN m){
+    return _is_utf8( (U8 *)(z), (U8*)(z + m));
 }
 
 
@@ -43,7 +75,16 @@ typedef struct pp_args{
 #ifndef ARRAY_SIZE
     #define ARRAY_SIZE(x) (sizeof(x)/sizeof(x[0]))
 #endif
+void utf8_check_encoding_cb( pp_func pf, SV *data){
+    char *ptr;
+    STRLEN data_len;
+    if (!pf->counter)
+	return;
+    ptr = SvPV( data, data_len);
+    if (!is_utf8( ptr, data_len ))
+	pf->counter = 0;
 
+}
 void utf8_upgrade_cb( pp_func pf, SV * data){
     if (!SvUTF8(data)){
 	(void) sv_utf8_upgrade( data );
@@ -280,16 +321,29 @@ deep_walk_imp( SV * data, pp_func pf){
 	}
     }
     else {
-	if ( SvPOK(data) ){
-	    unsigned char *pstr;
+	bool pok = 0;
+	if (SvMAGICAL(data)){
+	    mg_get(data);
+	    if (SvPOKp(data)){
+		pok = 1;
+	    };
+	}
+	else {
+	    if (SvPOK(data))
+		pok = 1;
+	};
+	// fprintf( stderr, "pok=%d %d\n", pok, SvPOK(data) );
+	if ( pok  ){
+	    U8 *pstr;
 	    int argc;
 	    STRLEN plen;
 	    STRLEN curr;
 	    int skip;
 	    int ret_list_size;
-	    pstr = (unsigned char *) SvPV(data, plen);
+	    pstr = (U8 *) SvPV(data, plen);
 
 	    if ( !pf->noskip ){
+	// 	fprintf( stderr, "noskip\n");
 		skip = 1;
 		for( curr = 0; curr < plen; ++ curr ){
 		    if ( pstr[curr] >= 128 ){
@@ -386,6 +440,7 @@ deep_walk_imp( SV * data, pp_func pf){
 	}
     }
 };
+
 
 MODULE = Deep::Encode		PACKAGE = Deep::Encode		
 
@@ -541,4 +596,16 @@ deep_utf8_upgrade( SV *data)
         a_args.callback = utf8_upgrade_cb;
 	a_args.counter = 0;
         deep_walk_imp( data, & a_args );
+	mXPUSHi( a_args.counter );
+
+void
+deep_utf8_check( SV *data)
+    PROTOTYPE: $
+    PPCODE:
+	struct pp_args a_args;
+        a_args.noskip  = 1;
+        a_args.type = DEEP_FUNCTION;
+        a_args.callback = utf8_check_encoding_cb;
+	a_args.counter = 1;
+        deep_walk_imp( data, &a_args );
 	mXPUSHi( a_args.counter );

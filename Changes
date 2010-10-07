@@ -37,3 +37,10 @@ Revision history for Perl extension Deep::Encode.
     - Added deep_utf8_upgrade
     - Added deep_utf8_downgrade
     - Little more tests
+
+0.09  Wen Oct 7 10:31 MSK 2010
+    - deep_utf8_check
+    - test deep_utf8_check
+
+0.10  Wen Oct 7 11:47 MSK 2010
+    - test for some  magic in deep_utf8_check
