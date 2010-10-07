@@ -1,6 +1,4 @@
 package Deep::Encode;
-
-use 5.008008;
 use strict;
 use warnings;
 
@@ -34,7 +32,7 @@ our @EXPORT_OK = ( map @$_, map  $EXPORT_TAGS{$_} , 'all' );
 
 our @EXPORT =  ( map @$_, map  $EXPORT_TAGS{$_} , 'all');
 
-our $VERSION = '0.10';
+our $VERSION = '0.11';
 
 require XSLoader;
 XSLoader::load('Deep::Encode', $VERSION);
