@@ -8,11 +8,31 @@
 #define DEEP_CALL_INPLACE  2
 #define DEEP_PRINT_STRING  1 
 
-// Win32 compilers
-#ifdef WIN32
-    #define inline _inline
+
+#ifndef PERL_UNUSED_VAR
+#  define PERL_UNUSED_VAR(var) if (0) var = var
 #endif
 
+#ifndef STATIC_INLINE /* a public perl API from 5.13.4 */
+#   if defined(__GNUC__) || defined(__cplusplus__) || (defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L))
+#       define STATIC_INLINE static inline
+#   else
+#       define STATIC_INLINE static
+#   endif
+#endif /* STATIC_INLINE */
+
+
+
+#ifndef inline /* don't like borgs definitions */ /* inline is keyword for STDC compiler  */
+#   if defined(__GNUC__) || defined(__cplusplus__) || (defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L))
+#   else
+#	if defined(WIN32) && defined(_MSV) /* Microsoft Compiler */
+#	    define inline _inline
+#	else 
+#	    define inline 
+#	endif
+#   endif
+#endif /* inline  */
 
 struct pp_args;
 typedef void (*p_callback)(struct pp_args*, SV *);

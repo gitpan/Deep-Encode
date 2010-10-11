@@ -32,7 +32,7 @@ our @EXPORT_OK = ( map @$_, map  $EXPORT_TAGS{$_} , 'all' );
 
 our @EXPORT =  ( map @$_, map  $EXPORT_TAGS{$_} , 'all');
 
-our $VERSION = '0.11';
+our $VERSION = '0.12';
 
 require XSLoader;
 XSLoader::load('Deep::Encode', $VERSION);
