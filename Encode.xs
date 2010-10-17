@@ -43,6 +43,7 @@ static U8 m2[] ={ 0, 0xff & ~63, 0xff& ~31, 0xff &~15, 0xff & ~7 };
 bool 
 _is_utf8( U8 * start, U8 *end ){
     STRLEN ucnt;
+    U8 first;
     ucnt = -1;
 
     START:
@@ -57,7 +58,7 @@ _is_utf8( U8 * start, U8 *end ){
 
     ENC:
     ucnt = 0; 
-    U8 first = *start;
+    first = *start;
     start++;
     while( start < end && (*start & 0xC0) == 0x80 ) ucnt++, start++;
     

@@ -50,3 +50,7 @@ Revision history for Perl extension Deep::Encode.
 
 0.12  Mon Oct 11 10:30 MSK 2010
     - more compiler support 
+
+0.13  Sun Oct 17 18:26 MSK 2010
+    - more old compiler support ( Thanks to JWRIGHT/James Wraight )
+
