@@ -124,6 +124,12 @@ void utf8_off_cb( pp_func pf, SV * data){
 	++(pf->counter);
     };
 }
+void utf8_on_cb( pp_func pf, SV * data){
+    if (!SvUTF8(data)){
+	SvUTF8_on(data);
+	++(pf->counter);
+    };
+}
 void from_to_cb( pp_func pf, SV * data){
     int ret_list_size;
     SV *decoded_sv;
@@ -591,6 +597,18 @@ deep_utf8_off( SV *data)
         a_args.noskip  = 1;
         a_args.type = DEEP_FUNCTION;
         a_args.callback = utf8_off_cb;
+	a_args.counter = 0;
+        deep_walk_imp( data, & a_args );
+	mXPUSHi( a_args.counter );
+
+void
+deep_utf8_on( SV *data)
+    PROTOTYPE: $
+    PPCODE:
+	struct pp_args a_args;
+        a_args.noskip  = 1;
+        a_args.type = DEEP_FUNCTION;
+        a_args.callback = utf8_on_cb;
 	a_args.counter = 0;
         deep_walk_imp( data, & a_args );
 	mXPUSHi( a_args.counter );

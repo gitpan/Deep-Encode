@@ -18,6 +18,7 @@ our %EXPORT_TAGS = (
 	all => [ qw( 
 		deep_utf8_check
 		deep_utf8_off
+		deep_utf8_on
 		deep_utf8_upgrade
 		deep_utf8_downgrade
 		deep_utf8_decode
@@ -32,7 +33,7 @@ our @EXPORT_OK = ( map @$_, map  $EXPORT_TAGS{$_} , 'all' );
 
 our @EXPORT =  ( map @$_, map  $EXPORT_TAGS{$_} , 'all');
 
-our $VERSION = '0.13';
+our $VERSION = '0.14';
 
 require XSLoader;
 XSLoader::load('Deep::Encode', $VERSION);
