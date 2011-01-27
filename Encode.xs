@@ -63,11 +63,11 @@ _is_utf8( U8 * start, U8 *end ){
     while( start < end && (*start & 0xC0) == 0x80 ) ucnt++, start++;
     
     if ( ucnt == 0 || ucnt > 4 ){
-// 	fprintf( stderr, "z1=%d %x\n", ucnt, first );
+/* 	fprintf( stderr, "z1=%d %x\n", ucnt, first ); */
 	return 0 ;
     }
     if ( (first & m1[ucnt]) != m2[ucnt]){
-// 	fprintf( stderr, "z2=%d %x\n", ucnt, first);
+/* 	fprintf( stderr, "z2=%d %x\n", ucnt, first); */
 	return 0;
     }
     goto START;
@@ -128,8 +128,9 @@ void utf8_on_cb( pp_func pf, SV * data){
     if (!SvUTF8(data)){
 	SvUTF8_on(data);
 	++(pf->counter);
-    };
+    }
 }
+
 void from_to_cb( pp_func pf, SV * data){
     int ret_list_size;
     SV *decoded_sv;
@@ -138,7 +139,7 @@ void from_to_cb( pp_func pf, SV * data){
     SAVETMPS;
 
     PUSHMARK(SP);
-    XPUSHs( pf->argv[0] ); //first encoding
+    XPUSHs( pf->argv[0] ); /*first encoding */
     XPUSHs( data );
 
     PUTBACK;
@@ -208,7 +209,7 @@ void from_to_cb_00( pp_func pf, SV * data){
     SAVETMPS;
 
     PUSHMARK(SP);
-    XPUSHs( pf->argv[0] ); //first encoding
+    XPUSHs( pf->argv[0] ); /*first encoding */
     XPUSHs( data );
 
     PUTBACK;
@@ -239,7 +240,7 @@ void from_to_cb_00( pp_func pf, SV * data){
     LEAVE;
 };
 
-//static U8* good_encoding=",cp1251,latin1,utf8,windows1251,cp866,";
+/*static U8* good_encoding=",cp1251,latin1,utf8,windows1251,cp866,"; */
 SV *find_encoding(pp_func pfunc, SV* encoding )
 {
     int ret_list;
@@ -359,7 +360,7 @@ deep_walk_imp( SV * data, pp_func pf){
 	    if (SvPOK(data))
 		pok = 1;
 	};
-	// fprintf( stderr, "pok=%d %d\n", pok, SvPOK(data) );
+	/* fprintf( stderr, "pok=%d %d\n", pok, SvPOK(data) ); */
 	if ( pok  ){
 	    U8 *pstr;
 	    int argc;
@@ -370,13 +371,16 @@ deep_walk_imp( SV * data, pp_func pf){
 	    pstr = (U8 *) SvPV(data, plen);
 
 	    if ( !pf->noskip ){
-	// 	fprintf( stderr, "noskip\n");
+	/* 	fprintf( stderr, "noskip\n");*/
 		skip = 1;
 		for( curr = 0; curr < plen; ++ curr ){
 		    if ( pstr[curr] >= 128 ){
 			skip = 0;
 			break;
 		    };			
+		}
+		if ( skip && SvUTF8( data ) ){
+		    SvUTF8_off( data ); /*  Restore flag */
 		}
 	    }
 	    else {
@@ -451,14 +455,14 @@ deep_walk_imp( SV * data, pp_func pf){
 			    }
 			};
 		    
-			// ARGUMENTS
+			/* ARGUMENTS */
 			PUTBACK;
 			call_sv( pf->argv[0], G_DISCARD );
 			FREETMPS;
 			LEAVE;
 			};
 		    break;
-		case 1: // print str
+		case 1: /* print str */
 		default:
 		    fprintf( stderr, "'%.*s'\n", (int) plen, pstr);
 		    break;
@@ -493,6 +497,7 @@ deep_utf8_encode( SV *data )
 	struct pp_args a_args;
 	a_args.noskip  = 0;
 	a_args.type = DEEP_CALL_INPLACE ;
+	
 	a_args.str_pos = 1;
 	a_args.argc    = 2;
 	a_args.argv[0] = (SV *) get_cv( "utf8::encode", 0); 

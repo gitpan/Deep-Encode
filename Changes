@@ -53,6 +53,11 @@ Revision history for Perl extension Deep::Encode.
 
 0.13  Sun Oct 17 18:26 MSK 2010
     - more old compiler support ( Thanks to JWRIGHT/James Wraight )
+
 0.14  Fri Oct 29 16:38 MSK 2010
     - added deep_utf8_on 
+
+0.15  Jan 27 2010
+    - fixed minor bug in deep_utf8_encode 
+
 
