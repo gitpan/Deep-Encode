@@ -60,4 +60,6 @@ Revision history for Perl extension Deep::Encode.
 0.15  Jan 27 2010
     - fixed minor bug in deep_utf8_encode 
 
+0.16  Jan 28 2010
+    - added deep_str_clone 
 

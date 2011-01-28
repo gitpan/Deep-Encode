@@ -200,7 +200,7 @@ void from_to_cb( pp_func pf, SV * data){
     PUTBACK;
     FREETMPS;
     LEAVE;
-};
+}
 void from_to_cb_00( pp_func pf, SV * data){
     int ret_list_size;
     SV *decoded_sv;
@@ -238,7 +238,7 @@ void from_to_cb_00( pp_func pf, SV * data){
     PUTBACK;
     FREETMPS;
     LEAVE;
-};
+}
 
 /*static U8* good_encoding=",cp1251,latin1,utf8,windows1251,cp866,"; */
 SV *find_encoding(pp_func pfunc, SV* encoding )
@@ -311,7 +311,128 @@ SV *find_encoding(pp_func pfunc, SV* encoding )
 	
     };
     return enc_obj;
-};
+}
+
+SV * 
+deep_clone_imp( SV * data, pp_func pf ){
+    if (SvROK(data)){
+	SV * rv = (SV*) SvRV(data);
+	if ( SvTYPE(rv) == SVt_PVAV ){
+	    int alen;
+	    SV **aitem;
+	    int i;
+	    AV *copy;
+	    copy = newAV();
+
+	    alen = av_len( (AV*)rv );
+	    av_extend( copy, alen+1);
+	    for ( i=0; i<= alen ;++i ){
+		aitem = av_fetch( (AV *) rv , i, 0);
+		if (aitem){
+		    SV *R;
+		    R = deep_clone_imp( *aitem, pf );
+		    if ( R ){
+			av_store( copy, i, R );
+		    }
+		    else {
+			R = *aitem;
+			SvREFCNT_inc_simple_void_NN( R );
+			av_store( copy, i, R );
+		    }
+		}
+	    }
+	    return newRV_noinc( (SV *)copy );
+	}
+	else if ( SvTYPE(rv) == SVt_PVHV ){
+	    STRLEN key_len;
+	    HV *hv;
+	    HE *he;
+	    SV * value;
+	    char * key_str;
+	    HV   * copy;
+	    copy = newHV();
+	    hv = (HV *) rv;
+	    hv_iterinit(hv);
+	    while(  (he = hv_iternext(hv)) ){
+		SV *R;
+		key_str = HePV( he, key_len);
+		value = HeVAL( he );
+		R = deep_clone_imp( value, pf );
+		if ( R ){
+		    hv_store( copy, key_str, key_len, R , 0);
+		}
+		else {
+		    R = value;
+		    SvREFCNT_inc_simple_void_NN( R );
+		    hv_store( copy, key_str, key_len, R, 0 );
+		}
+	    }	 
+	    return newRV_noinc( (SV *)copy );
+	}
+	else {
+	    /* Simple assume of REF type */
+	    SV *R;
+	    R = deep_clone_imp( rv, pf );
+	    if ( R ){
+		return newRV_noinc( R );
+	    }
+	    else {
+		return 0;
+	    }
+	}
+    }
+    else {
+	bool pok = 0;
+	if (SvMAGICAL(data)){
+	    mg_get(data);
+	    if (SvPOKp(data)){
+		pok = 1;
+	    };
+	}
+	else {
+	    if (SvPOK(data))
+		pok = 1;
+	};
+
+	/* fprintf( stderr, "pok=%d %d\n", pok, SvPOK(data) ); */
+	if ( pok  ){
+	    U8 *pstr;
+	    STRLEN plen;
+	    STRLEN curr;
+	    int skip;
+	    pstr = (U8 *) SvPVX(data);
+	    plen = SvCUR( data );
+
+	    if ( !pf->noskip ){
+	/* 	fprintf( stderr, "noskip\n");*/
+		skip = 1;
+		for( curr = 0; curr < plen; ++ curr ){
+		    if ( pstr[curr] >= 128 ){
+			skip = 0;
+			break;
+		    };			
+		}
+		if ( skip && SvUTF8( data ) ){
+		    SvUTF8_off( data ); /*  Restore flag */
+		}
+	    }
+	    else {
+		skip = 0;
+	    };
+	    if (skip) {
+		return 0;
+	    }
+	    else {
+		SV * R = newSVpvn( (char *)pstr, plen );
+		if ( SvUTF8( data )){
+		    SvUTF8_on( R );
+		}
+		return R;
+	    }
+	}
+    }
+    return 0;
+}
 
 void 
 deep_walk_imp( SV * data, pp_func pf){
@@ -368,7 +489,8 @@ deep_walk_imp( SV * data, pp_func pf){
 	    STRLEN curr;
 	    int skip;
 	    int ret_list_size;
-	    pstr = (U8 *) SvPV(data, plen);
+	    pstr = (U8 *) SvPVX(data);
+	    plen = SvCUR( data );
 
 	    if ( !pf->noskip ){
 	/* 	fprintf( stderr, "noskip\n");*/
@@ -470,7 +592,7 @@ deep_walk_imp( SV * data, pp_func pf){
 	    }
 	}
     }
-};
+}
 
 
 MODULE = Deep::Encode		PACKAGE = Deep::Encode		
@@ -653,3 +775,19 @@ deep_utf8_check( SV *data)
 	a_args.counter = 1;
         deep_walk_imp( data, &a_args );
 	mXPUSHi( a_args.counter );
+
+void 
+deep_str_clone( SV *data )
+    PROTOTYPE: $
+    PPCODE:
+    struct pp_args a_args;
+    SV * R;
+    R = deep_clone_imp( data, &a_args );
+    if ( R ){
+	sv_2mortal( R );
+	XPUSHs( R );
+    }
+    else {
+	XPUSHs( data );
+    }
+

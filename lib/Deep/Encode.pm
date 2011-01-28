@@ -26,6 +26,7 @@ our %EXPORT_TAGS = (
 	   	deep_from_to
 		deep_encode
 		deep_decode
+		deep_str_clone
 		) ], 
 	 );
 
@@ -33,7 +34,7 @@ our @EXPORT_OK = ( map @$_, map  $EXPORT_TAGS{$_} , 'all' );
 
 our @EXPORT =  ( map @$_, map  $EXPORT_TAGS{$_} , 'all');
 
-our $VERSION = '0.15';
+our $VERSION = '0.16';
 
 require XSLoader;
 XSLoader::load('Deep::Encode', $VERSION);
