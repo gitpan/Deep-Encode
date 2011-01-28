@@ -13,3 +13,4 @@ t/Deep-Encode-03.t
 t/Deep-Encode-04.t
 t/Deep-Encode-05.t
 t/Deep-Encode-06.t
+t/Deep-Encode-07.t

@@ -26,7 +26,17 @@ our %EXPORT_TAGS = (
 	   	deep_from_to
 		deep_encode
 		deep_decode
+
 		deep_str_clone
+
+		deepc_utf8_upgrade
+		deepc_utf8_downgrade
+		deepc_utf8_decode
+	   	deepc_utf8_encode
+	   	deepc_from_to
+		deepc_encode
+		deepc_decode
+
 		) ], 
 	 );
 
@@ -34,11 +44,71 @@ our @EXPORT_OK = ( map @$_, map  $EXPORT_TAGS{$_} , 'all' );
 
 our @EXPORT =  ( map @$_, map  $EXPORT_TAGS{$_} , 'all');
 
-our $VERSION = '0.16';
+our $VERSION = '0.17';
 
 require XSLoader;
 XSLoader::load('Deep::Encode', $VERSION);
 
+sub deepc_utf8_upgrade{
+	deep_utf8_upgrade( my $val = deep_str_clone( $_[0] ));
+	return $val;
+}
+
+sub deepc_utf8_downgrade{
+	deep_utf8_downgrade( my $val = deep_str_clone( $_[0] ));
+	return $val;
+}
+sub deepc_utf8_decode{
+	deep_utf8_decode( my $val = deep_str_clone( $_[0] ));
+	return $val;
+}
+
+sub deepc_utf8_encode{
+	deep_utf8_decode( my $val = deep_str_clone( $_[0] ));
+	return $val;
+}
+sub deepc_decode{
+	deep_decode( my $val = deep_str_clone( $_[0] ), $_[1]);
+	return $val;
+}
+sub deepc_encode{
+	deep_decode( my $val = deep_str_clone( $_[0] ), $_[1]);
+	return $val;
+}
+sub deepc_from_to{
+	deep_from_to( my $val = deep_str_clone( $_[0] ), $_[1], $_[2]);
+	return $val;
+}
+1;
+__END__
+
+=head1 NAME
+
+Deep::Encode - Bulk encoding and decoding strings in Perl data
+
+=head1 SYNOPSIS
+
+  use Deep::Encode;
+
+  my $s = [ 1, 2, "string in cp1251 encoding" ];
+
+  deep_from_to( $s, "cp1251", "utf8" ); # convert $s to [ [ 1, 2, "string in utf8 encoding" ]; using Encode::from_to
+
+  deep_utf8_encode( $s ) ; # call utf8::encode on every string in $s
+  deep_utf8_decode( $s ) ; # call utf8::decode on every string in $s
+
+  deep_encode( $s, $encoding );  # call Encode::encode for every string scalar in
+  deep_decode( $s, $encoding );  # call Encode::decode for every string scalar in 
+
+  if ( deep_utf8_check( $s ) ){
+      deep_utf8_decode( $s );
+  }
+  else {
+      croak( "Data not in utf8 encoding" );
+  }
+    
+
+=head1 DESCRIPTION
 1;
 __END__
 

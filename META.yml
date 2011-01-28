@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               Deep-Encode
-version:            0.16
+version:            0.17
 abstract:           Bulk encoding and decoding strings in Perl data
 author:
     - A. G. Grishaev <grian@cpan.org>

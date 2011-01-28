@@ -62,4 +62,7 @@ Revision history for Perl extension Deep::Encode.
 
 0.16  Jan 28 2010
     - added deep_str_clone 
+    
+0.17  Jan 28 2010
+    - added deepc_encode, deepc_decode ... etc
 

@@ -322,26 +322,34 @@ deep_clone_imp( SV * data, pp_func pf ){
 	    SV **aitem;
 	    int i;
 	    AV *copy;
+	    SV *R;
+	    bool need_clone;
 	    copy = newAV();
 
 	    alen = av_len( (AV*)rv );
 	    av_extend( copy, alen+1);
+	    need_clone = 0;
 	    for ( i=0; i<= alen ;++i ){
 		aitem = av_fetch( (AV *) rv , i, 0);
 		if (aitem){
-		    SV *R;
 		    R = deep_clone_imp( *aitem, pf );
 		    if ( R ){
 			av_store( copy, i, R );
+			need_clone = 1;
 		    }
 		    else {
-			R = *aitem;
-			SvREFCNT_inc_simple_void_NN( R );
-			av_store( copy, i, R );
+			SvREFCNT_inc_simple_void_NN( *aitem );
+			av_store( copy, i, *aitem );
 		    }
 		}
 	    }
-	    return newRV_noinc( (SV *)copy );
+	    if ( need_clone ){
+		return newRV_noinc( (SV *)copy );
+	    }
+	    else{
+		SvREFCNT_dec( copy );
+		return 0;
+	    }
 	}
 	else if ( SvTYPE(rv) == SVt_PVHV ){
 	    STRLEN key_len;
@@ -350,24 +358,32 @@ deep_clone_imp( SV * data, pp_func pf ){
 	    SV * value;
 	    char * key_str;
 	    HV   * copy;
+	    SV *R;
+	    bool need_clone;
 	    copy = newHV();
 	    hv = (HV *) rv;
 	    hv_iterinit(hv);
+	    need_clone = 0;
 	    while(  (he = hv_iternext(hv)) ){
-		SV *R;
 		key_str = HePV( he, key_len);
 		value = HeVAL( he );
 		R = deep_clone_imp( value, pf );
 		if ( R ){
 		    hv_store( copy, key_str, key_len, R , 0);
+		    need_clone = 1;
 		}
 		else {
-		    R = value;
-		    SvREFCNT_inc_simple_void_NN( R );
-		    hv_store( copy, key_str, key_len, R, 0 );
+		    SvREFCNT_inc_simple_void_NN( value );
+		    hv_store( copy, key_str, key_len, value, 0 );
 		}
 	    }	 
-	    return newRV_noinc( (SV *)copy );
+	    if ( need_clone ){
+		return newRV_noinc( (SV *)copy );
+	    }
+	    else{
+		SvREFCNT_dec( copy );
+		return 0;
+	    }
 	}
 	else {
 	    /* Simple assume of REF type */
@@ -430,8 +446,8 @@ deep_clone_imp( SV * data, pp_func pf ){
 		return R;
 	    }
 	}
+	return 0;
     }
-    return 0;
 }
 
 void 
