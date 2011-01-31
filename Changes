@@ -66,3 +66,5 @@ Revision history for Perl extension Deep::Encode.
 0.17  Jan 28 2010
     - added deepc_encode, deepc_decode ... etc
 
+0.18  Feb 01 2010
+    - fixed bug introduced in 0.16

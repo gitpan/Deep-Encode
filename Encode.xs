@@ -410,14 +410,15 @@ deep_clone_imp( SV * data, pp_func pf ){
 		pok = 1;
 	};
 
+
 	/* fprintf( stderr, "pok=%d %d\n", pok, SvPOK(data) ); */
 	if ( pok  ){
 	    U8 *pstr;
 	    STRLEN plen;
 	    STRLEN curr;
 	    int skip;
-	    pstr = (U8 *) SvPVX(data);
 	    plen = SvCUR( data );
+	    pstr = (U8 *)SvPVX( data );
 
 	    if ( !pf->noskip ){
 	/* 	fprintf( stderr, "noskip\n");*/
@@ -446,7 +447,9 @@ deep_clone_imp( SV * data, pp_func pf ){
 		return R;
 	    }
 	}
-	return 0;
+	else {
+	    return 0;
+	}
     }
 }
 
@@ -798,6 +801,7 @@ deep_str_clone( SV *data )
     PPCODE:
     struct pp_args a_args;
     SV * R;
+    a_args.noskip = 0;
     R = deep_clone_imp( data, &a_args );
     if ( R ){
 	sv_2mortal( R );

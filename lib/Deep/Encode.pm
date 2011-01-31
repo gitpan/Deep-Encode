@@ -44,7 +44,7 @@ our @EXPORT_OK = ( map @$_, map  $EXPORT_TAGS{$_} , 'all' );
 
 our @EXPORT =  ( map @$_, map  $EXPORT_TAGS{$_} , 'all');
 
-our $VERSION = '0.17';
+our $VERSION = '0.18';
 
 require XSLoader;
 XSLoader::load('Deep::Encode', $VERSION);
@@ -64,7 +64,7 @@ sub deepc_utf8_decode{
 }
 
 sub deepc_utf8_encode{
-	deep_utf8_decode( my $val = deep_str_clone( $_[0] ));
+	deep_utf8_encode( my $val = deep_str_clone( $_[0] ));
 	return $val;
 }
 sub deepc_decode{
@@ -72,7 +72,7 @@ sub deepc_decode{
 	return $val;
 }
 sub deepc_encode{
-	deep_decode( my $val = deep_str_clone( $_[0] ), $_[1]);
+	deep_encode( my $val = deep_str_clone( $_[0] ), $_[1]);
 	return $val;
 }
 sub deepc_from_to{
